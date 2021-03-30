@@ -64,5 +64,5 @@ class ChiSquared {
 
   int main(int argc, char *argv[]);
 
-  int32_t get_decrypted_value(seal::Ciphertext value);
+  uint64_t get_decrypted_value(seal::Ciphertext value);
 };

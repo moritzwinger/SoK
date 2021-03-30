@@ -1,8 +1,10 @@
 cmake_minimum_required (VERSION 3.9...3.17)
 
+
+SET(CMAKE_OSX_ARCHITECTURES "arm64" CACHE STRING "Build architectures for Mac OS X" FORCE)
 project(eval_benchmark)
 
-find_package(SEAL 3.5 CONFIG REQUIRED)
+find_package(SEAL 3.6 CONFIG REQUIRED)
 
 set(CMAKE_BUILD_TYPE RELEASE)
 

@@ -5,7 +5,7 @@
 void ChiSquared::setup_context_bfv(std::size_t poly_modulus_degree,
                                    std::uint64_t plain_modulus) {
   /// Wrapper for parameters
-  seal::EncryptionParameters params(seal::scheme_type::BFV);
+  seal::EncryptionParameters params(seal::scheme_type::bfv);
   params.set_poly_modulus_degree(poly_modulus_degree);
 #ifdef MANUALPARAMS
   params.set_coeff_modulus(seal::CoeffModulus::Create(
@@ -21,25 +21,32 @@ void ChiSquared::setup_context_bfv(std::size_t poly_modulus_degree,
   params.set_coeff_modulus(seal::CoeffModulus::BFVDefault(
       poly_modulus_degree, seal::sec_level_type::tc128));
 #endif
-  params.set_plain_modulus(plain_modulus);
-
+  // set plaintext modulus suitable for batching
+  params.set_plain_modulus(seal::PlainModulus::Batching(poly_modulus_degree, 20));
   // Instantiate context
-  context = seal::SEALContext::Create(params);
+  seal::SEALContext context(params);
 
   /// Create keys
   seal::KeyGenerator keyGenerator(context);
-  publicKey = std::make_unique<seal::PublicKey>(keyGenerator.public_key());
-  secretKey = std::make_unique<seal::SecretKey>(keyGenerator.secret_key());
-  relinKeys =
-      std::make_unique<seal::RelinKeys>(keyGenerator.relin_keys_local());
+  auto pktest = keyGenerator.create_public_key();
+
+  keyGenerator.create_public_key(publicKey);
+
+  secretKey = keyGenerator.secret_key();
+
+  keyGenerator.create_relin_keys(relinKeys);
 
   // Provide both public and secret key, however, we will use public-key
   // encryption as this is the one used in a typical client-server scenario.
   encryptor =
-      std::make_unique<seal::Encryptor>(context, *publicKey, *secretKey);
+      std::make_unique<seal::Encryptor>(context, publicKey, secretKey);
   evaluator = std::make_unique<seal::Evaluator>(context);
-  decryptor = std::make_unique<seal::Decryptor>(context, *secretKey);
-  encoder = std::make_unique<seal::IntegerEncoder>(context);
+  decryptor = std::make_unique<seal::Decryptor>(context, secretKey);
+
+  encoder = std::make_unique<seal::BatchEncoder>(context);
+
+  auto qualifiers = context.first_context_data()->qualifiers();
+  std::cout << "Batching enabled: " << std::boolalpha << qualifiers.using_batching << std::endl;
 }
 
 namespace {
@@ -52,55 +59,66 @@ void log_time(std::stringstream &ss,
 }
 }  // namespace
 
-int32_t ChiSquared::get_decrypted_value(seal::Ciphertext value) {
+uint64_t ChiSquared::get_decrypted_value(seal::Ciphertext value) {
   seal::Plaintext tmp;
+  std::vector<uint64_t> resultvec;
   decryptor->decrypt(value, tmp);
-  return encoder->decode_int32(tmp);
+  encoder->decode(tmp, resultvec);
+  std::cout<< resultvec[0] << std::endl;
+  return resultvec[0];
 }
 
 ResultCiphertexts ChiSquared::compute_alpha_betas(const seal::Ciphertext &N_0,
                                                   const seal::Ciphertext &N_1,
                                                   const seal::Ciphertext &N_2) {
 
+  std::size_t slot_count = encoder->slot_count();
+  std::vector<uint64_t> four_vec(slot_count, 0ULL);
+  four_vec[0] = 4;
+
   // compute alpha
   std::cout << "Computing alpha" << std::endl;
   seal::Plaintext four;
-  encoder->encode(4, four);
+  encoder->encode(four_vec, four);
+
   seal::Ciphertext four_n0;
   seal::Ciphertext four_ctxt;
+
   encryptor->encrypt(four, four_ctxt);
   evaluator->multiply(N_0, four_ctxt, four_n0);
-  evaluator->relinearize(four_n0, *relinKeys, four_n0);
+  evaluator->relinearize(four_n0, relinKeys, four_n0);
   seal::Ciphertext four_n0_n2;
   evaluator->multiply(four_n0, N_2, four_n0_n2);
-  evaluator->relinearize(four_n0_n2, *relinKeys, four_n0_n2);
+  evaluator->relinearize(four_n0_n2, relinKeys, four_n0_n2);
   seal::Ciphertext N_1_pow2;
-  evaluator->exponentiate(N_1, 2, *relinKeys, N_1_pow2);
+  evaluator->exponentiate(N_1, 2, relinKeys, N_1_pow2);
   seal::Ciphertext difference;
   evaluator->sub(four_n0_n2, N_1_pow2, difference);
   seal::Ciphertext alpha;
-  evaluator->exponentiate(difference, 2, *relinKeys, alpha);
+  evaluator->exponentiate(difference, 2, relinKeys, alpha);
 
 
   // compute beta_1
   std::cout << "Computing beta_1" << std::endl;
 
   seal::Ciphertext N_0_t2;
-  seal::Plaintext two;
-  encoder->encode(2, two);
+  //seal::Plaintext two;
+  int two_int = 2;
+  seal::Plaintext two(std::to_string(two_int));
+  //encoder->encode(2, two);
   seal::Ciphertext two_ctxt;
   encryptor->encrypt(two, two_ctxt);
   evaluator->multiply(N_0, two_ctxt, N_0_t2);
   seal::Ciphertext N_0_t2_relin;
-  evaluator->relinearize(N_0_t2, *relinKeys, N_0_t2_relin);
+  evaluator->relinearize(N_0_t2, relinKeys, N_0_t2_relin);
   seal::Ciphertext twot_N_0__plus__N_1;
   evaluator->add(N_0_t2_relin, N_1, twot_N_0__plus__N_1);
   seal::Ciphertext beta_1_t1;
-  evaluator->exponentiate(twot_N_0__plus__N_1, 2, *relinKeys, beta_1_t1);
+  evaluator->exponentiate(twot_N_0__plus__N_1, 2, relinKeys, beta_1_t1);
   seal::Ciphertext beta_1_t2;
   evaluator->multiply(beta_1_t1, two_ctxt, beta_1_t2);
   seal::Ciphertext beta_1;
-  evaluator->relinearize(beta_1_t2, *relinKeys, beta_1);
+  evaluator->relinearize(beta_1_t2, relinKeys, beta_1);
 
   // compute beta_2
   std::cout << "Computing beta_2" << std::endl;
@@ -112,30 +130,30 @@ ResultCiphertexts ChiSquared::compute_alpha_betas(const seal::Ciphertext &N_0,
   encryptor->encrypt(two, two_ctxt_);
   evaluator->multiply(N_0, two_ctxt_, N_0_t2_);
   seal::Ciphertext N_0_t2_relin_;
-  evaluator->relinearize(N_0_t2_, *relinKeys, N_0_t2_relin_);
+  evaluator->relinearize(N_0_t2_, relinKeys, N_0_t2_relin_);
   seal::Ciphertext twot_N_0__plus__N_1_;
   evaluator->add(N_0_t2, N_1, twot_N_0__plus__N_1_);
 
   seal::Ciphertext t2_N_2_temp;
   evaluator->multiply(N_2, two_ctxt, t2_N_2_temp);
   seal::Ciphertext t2_N_2;
-  evaluator->relinearize(t2_N_2_temp, *relinKeys, t2_N_2);
+  evaluator->relinearize(t2_N_2_temp, relinKeys, t2_N_2);
   seal::Ciphertext twot_N_2__plus__N_1;
   evaluator->add(t2_N_2, N_1, twot_N_2__plus__N_1);
   seal::Ciphertext beta_2_temp;
   evaluator->multiply(twot_N_0__plus__N_1, twot_N_2__plus__N_1, beta_2_temp);
   seal::Ciphertext beta_2;
-  evaluator->relinearize(beta_2_temp, *relinKeys, beta_2);
+  evaluator->relinearize(beta_2_temp, relinKeys, beta_2);
 
   // compute beta_3
   std::cout << "Computing beta_3" << std::endl;
 
   seal::Ciphertext beta_3_t1;
-  evaluator->exponentiate(twot_N_2__plus__N_1, 2, *relinKeys, beta_3_t1);
+  evaluator->exponentiate(twot_N_2__plus__N_1, 2, relinKeys, beta_3_t1);
   seal::Ciphertext beta_3_t2;
   evaluator->multiply(beta_3_t1, two_ctxt, beta_3_t2);
   seal::Ciphertext beta_3;
-  evaluator->relinearize(beta_3_t2, *relinKeys, beta_3);
+  evaluator->relinearize(beta_3_t2, relinKeys, beta_3);
 
   return ResultCiphertexts(alpha, beta_1, beta_2, beta_3);
 }
@@ -151,10 +169,26 @@ void ChiSquared::run_chi_squared() {
 
   auto t2 = Time::now();
   int32_t n0_val = 2, n1_val = 7, n2_val = 9;
+
   seal::Ciphertext n0, n1, n2;
-  encryptor->encrypt(encoder->encode(n0_val), n0);
-  encryptor->encrypt(encoder->encode(n1_val), n1);
-  encryptor->encrypt(encoder->encode(n2_val), n2);
+  seal::Plaintext n0_plain;
+  seal::Plaintext n1_plain;
+  seal::Plaintext n2_plain;
+
+  //initialise vectors for each integer (we use batch encoding)
+  std::size_t slot_count = encoder->slot_count();
+  std::vector<uint64_t> n0_vec(slot_count, 0ULL);
+  std::vector<uint64_t> n1_vec(slot_count, 0ULL);
+  std::vector<uint64_t> n2_vec(slot_count, 0ULL);
+  n0_vec[0] = n0_val;
+  n0_vec[0] = n1_val;
+  n0_vec[0] = n2_val;
+  encoder->encode(n0_vec, n0_plain);
+  encoder->encode(n1_vec, n1_plain);
+  encoder->encode(n2_vec, n2_plain);
+  encryptor->encrypt(n0_plain, n0);
+  encryptor->encrypt(n1_plain, n1);
+  encryptor->encrypt(n2_plain, n2);
   auto t3 = Time::now();
   log_time(ss_time, t2, t3, false);
 
@@ -166,10 +200,10 @@ void ChiSquared::run_chi_squared() {
 
   // decrypt results
   auto t6 = Time::now();
-  int32_t result_alpha = get_decrypted_value(result.alpha);
-  int32_t result_beta1 = get_decrypted_value(result.beta_1);
-  int32_t result_beta2 = get_decrypted_value(result.beta_2);
-  int32_t result_beta3 = get_decrypted_value(result.beta_3);
+  uint64_t result_alpha = get_decrypted_value(result.alpha);
+  uint64_t result_beta1 = get_decrypted_value(result.beta_1);
+  uint64_t result_beta2 = get_decrypted_value(result.beta_2);
+  uint64_t result_beta3 = get_decrypted_value(result.beta_3);
   auto t7 = Time::now();
   log_time(ss_time, t6, t7, true);
 
@@ -178,6 +212,7 @@ void ChiSquared::run_chi_squared() {
   assert(("Unexpected result for 'alpha' encountered!",
       result_alpha==exp_alpha));
   auto exp_beta_1 = 2*std::pow(2*n0_val + n1_val, 2);
+  std::cout << "expected beta1 " << exp_beta_1 << std::endl;
   assert(("Unexpected result for 'beta_1' encountered!",
       result_beta1==exp_beta_1));
   auto exp_beta_2 = ((2*n0_val) + n1_val)*((2*n2_val) + n1_val);

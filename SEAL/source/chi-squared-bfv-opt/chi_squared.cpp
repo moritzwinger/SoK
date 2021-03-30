@@ -56,7 +56,7 @@ void log_time(std::stringstream &ss,
 }
 }  // namespace
 
-int32_t ChiSquared::get_decrypted_value(seal::Ciphertext value) {
+uint64_t ChiSquared::get_decrypted_value(seal::Ciphertext value) {
   seal::Plaintext tmp;
   decryptor->decrypt(value, tmp);
   return encoder->decode_int32(tmp);
