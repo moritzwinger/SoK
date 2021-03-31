@@ -1,1 +1,0 @@
-/Library/Developer/CommandLineTools/usr/bin/c++  -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX11.1.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names  CMakeFiles/cardio_bfv_batched_manualparams.dir/cardio-bfv-batched/cardio-batched.cpp.o  -o cardio_bfv_batched_manualparams  /usr/local/lib/libseal-3.6.a 

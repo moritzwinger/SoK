@@ -2,6 +2,7 @@
 
 #include "../common.h"
 
+
 void ChiSquared::setup_context_bfv(std::size_t poly_modulus_degree,
                                    std::uint64_t plain_modulus) {
   /// Wrapper for parameters
@@ -24,11 +25,10 @@ void ChiSquared::setup_context_bfv(std::size_t poly_modulus_degree,
   // set plaintext modulus suitable for batching
   params.set_plain_modulus(seal::PlainModulus::Batching(poly_modulus_degree, 20));
   // Instantiate context
-  seal::SEALContext context(params);
+  context = std::make_shared<seal::SEALContext>(params);
 
   /// Create keys
-  seal::KeyGenerator keyGenerator(context);
-  auto pktest = keyGenerator.create_public_key();
+  seal::KeyGenerator keyGenerator(*context);
 
   keyGenerator.create_public_key(publicKey);
 
@@ -39,13 +39,13 @@ void ChiSquared::setup_context_bfv(std::size_t poly_modulus_degree,
   // Provide both public and secret key, however, we will use public-key
   // encryption as this is the one used in a typical client-server scenario.
   encryptor =
-      std::make_unique<seal::Encryptor>(context, publicKey, secretKey);
-  evaluator = std::make_unique<seal::Evaluator>(context);
-  decryptor = std::make_unique<seal::Decryptor>(context, secretKey);
+      std::make_unique<seal::Encryptor>(*context, publicKey, secretKey);
+  evaluator = std::make_unique<seal::Evaluator>(*context);
+  decryptor = std::make_unique<seal::Decryptor>(*context, secretKey);
 
-  encoder = std::make_unique<seal::BatchEncoder>(context);
+  encoder = std::make_unique<seal::BatchEncoder>(*context);
 
-  auto qualifiers = context.first_context_data()->qualifiers();
+  auto qualifiers = context->first_context_data()->qualifiers();
   std::cout << "Batching enabled: " << std::boolalpha << qualifiers.using_batching << std::endl;
 }
 
@@ -61,10 +61,10 @@ void log_time(std::stringstream &ss,
 
 uint64_t ChiSquared::get_decrypted_value(seal::Ciphertext value) {
   seal::Plaintext tmp;
-  std::vector<uint64_t> resultvec;
+  std::vector<uint64_t> resultvec(encoder->slot_count(), 0ULL);;
   decryptor->decrypt(value, tmp);
   encoder->decode(tmp, resultvec);
-  std::cout<< resultvec[0] << std::endl;
+  std::cout << resultvec[0] << std::endl;
   return resultvec[0];
 }
 
@@ -73,8 +73,7 @@ ResultCiphertexts ChiSquared::compute_alpha_betas(const seal::Ciphertext &N_0,
                                                   const seal::Ciphertext &N_2) {
 
   std::size_t slot_count = encoder->slot_count();
-  std::vector<uint64_t> four_vec(slot_count, 0ULL);
-  four_vec[0] = 4;
+  std::vector<uint64_t> four_vec(slot_count, 4ULL);
 
   // compute alpha
   std::cout << "Computing alpha" << std::endl;
@@ -177,12 +176,10 @@ void ChiSquared::run_chi_squared() {
 
   //initialise vectors for each integer (we use batch encoding)
   std::size_t slot_count = encoder->slot_count();
-  std::vector<uint64_t> n0_vec(slot_count, 0ULL);
-  std::vector<uint64_t> n1_vec(slot_count, 0ULL);
-  std::vector<uint64_t> n2_vec(slot_count, 0ULL);
-  n0_vec[0] = n0_val;
-  n0_vec[0] = n1_val;
-  n0_vec[0] = n2_val;
+  std::vector<uint64_t> n0_vec(slot_count, n0_val);
+  std::vector<uint64_t> n1_vec(slot_count, n1_val);
+  std::vector<uint64_t> n2_vec(slot_count, n2_val);
+
   encoder->encode(n0_vec, n0_plain);
   encoder->encode(n1_vec, n1_plain);
   encoder->encode(n2_vec, n2_plain);
@@ -195,6 +192,7 @@ void ChiSquared::run_chi_squared() {
   // perform FHE computation
   auto t4 = Time::now();
   auto result = compute_alpha_betas(n0, n1, n2);
+
   auto t5 = Time::now();
   log_time(ss_time, t4, t5, false);
 
@@ -209,10 +207,11 @@ void ChiSquared::run_chi_squared() {
 
   // check results
   auto exp_alpha = std::pow((4*n0_val*n2_val) - std::pow(n1_val, 2), 2);
+  std::cout << "expected alpha: " << exp_alpha << std::endl;
   assert(("Unexpected result for 'alpha' encountered!",
       result_alpha==exp_alpha));
   auto exp_beta_1 = 2*std::pow(2*n0_val + n1_val, 2);
-  std::cout << "expected beta1 " << exp_beta_1 << std::endl;
+  std::cout << "expected beta1: " << exp_beta_1 << std::endl;
   assert(("Unexpected result for 'beta_1' encountered!",
       result_beta1==exp_beta_1));
   auto exp_beta_2 = ((2*n0_val) + n1_val)*((2*n2_val) + n1_val);
