@@ -29,11 +29,8 @@ void ChiSquared::setup_context_bfv(std::size_t poly_modulus_degree,
 
   /// Create keys
   seal::KeyGenerator keyGenerator(*context);
-
   keyGenerator.create_public_key(publicKey);
-
   secretKey = keyGenerator.secret_key();
-
   keyGenerator.create_relin_keys(relinKeys);
 
   // Provide both public and secret key, however, we will use public-key
@@ -42,7 +39,6 @@ void ChiSquared::setup_context_bfv(std::size_t poly_modulus_degree,
       std::make_unique<seal::Encryptor>(*context, publicKey, secretKey);
   evaluator = std::make_unique<seal::Evaluator>(*context);
   decryptor = std::make_unique<seal::Decryptor>(*context, secretKey);
-
   encoder = std::make_unique<seal::BatchEncoder>(*context);
 
   auto qualifiers = context->first_context_data()->qualifiers();
@@ -73,11 +69,11 @@ ResultCiphertexts ChiSquared::compute_alpha_betas(const seal::Ciphertext &N_0,
 
   std::size_t slot_count = encoder->slot_count();
   std::vector<uint64_t> four_vec(slot_count, 4ULL);
+  seal::Plaintext four;
+  encoder->encode(four_vec, four);
 
   // compute alpha
   std::cout << "Computing alpha" << std::endl;
-  seal::Plaintext four;
-  encoder->encode(four_vec, four);
 
   seal::Ciphertext four_n0;
   seal::Ciphertext four_ctxt;
