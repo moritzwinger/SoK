@@ -64,7 +64,6 @@ uint64_t ChiSquared::get_decrypted_value(seal::Ciphertext value) {
   std::vector<uint64_t> resultvec(encoder->slot_count(), 0ULL);;
   decryptor->decrypt(value, tmp);
   encoder->decode(tmp, resultvec);
-  std::cout << resultvec[0] << std::endl;
   return resultvec[0];
 }
 
@@ -99,7 +98,6 @@ ResultCiphertexts ChiSquared::compute_alpha_betas(const seal::Ciphertext &N_0,
 
   // compute beta_1
   std::cout << "Computing beta_1" << std::endl;
-
   seal::Ciphertext N_0_t2;
   //seal::Plaintext two;
   int two_int = 2;
@@ -207,11 +205,9 @@ void ChiSquared::run_chi_squared() {
 
   // check results
   auto exp_alpha = std::pow((4*n0_val*n2_val) - std::pow(n1_val, 2), 2);
-  std::cout << "expected alpha: " << exp_alpha << std::endl;
   assert(("Unexpected result for 'alpha' encountered!",
       result_alpha==exp_alpha));
   auto exp_beta_1 = 2*std::pow(2*n0_val + n1_val, 2);
-  std::cout << "expected beta1: " << exp_beta_1 << std::endl;
   assert(("Unexpected result for 'beta_1' encountered!",
       result_beta1==exp_beta_1));
   auto exp_beta_2 = ((2*n0_val) + n1_val)*((2*n2_val) + n1_val);
