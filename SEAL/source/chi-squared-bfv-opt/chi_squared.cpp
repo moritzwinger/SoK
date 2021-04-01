@@ -168,15 +168,19 @@ void ChiSquared::run_chi_squared() {
     auto exp_alpha = std::pow((4 * n0_val * n2_val) - std::pow(n1_val, 2), 2);
     assert(("Unexpected result for 'alpha' encountered!",
             result_alpha == exp_alpha));
+    std::cout << "Expected alpha: " << exp_alpha << ", calculated alpha: " << result_alpha << std::endl;
     auto exp_beta_1 = 2 * std::pow(2 * n0_val + n1_val, 2);
     assert(("Unexpected result for 'beta_1' encountered!",
             result_beta1 == exp_beta_1));
+    std::cout << "Expected beta_1: " << exp_beta_1 << ", calculated beta_1: " << result_beta1 << std::endl;
     auto exp_beta_2 = ((2 * n0_val) + n1_val) * ((2 * n2_val) + n1_val);
     assert(("Unexpected result for 'beta_2' encountered!",
             result_beta2 == exp_beta_2));
+    std::cout << "Expected beta_2: " << exp_beta_2 << ", calculated beta_2: " << result_beta2 << std::endl;
     auto exp_beta_3 = 2 * std::pow(2 * n2_val + n1_val, 2);
     assert(("Unexpected result for 'beta_3' encountered!",
             result_beta3 == exp_beta_3));
+    std::cout << "Expected beta_3: " << exp_beta_3 << ", calculated beta_3: " << result_beta3 << std::endl;
     // write ss_time into file
     std::ofstream myfile;
     auto out_filename = std::getenv("OUTPUT_FILENAME");
