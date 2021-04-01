@@ -249,7 +249,7 @@ std::unique_ptr<seal::Ciphertext> Cardio::lower(CiphertextVector &lhs,
     if (len == 1) {
         seal::Ciphertext one;
         std::size_t slot_count = encoder->slot_count();
-        std::vector<uint64_t> one_vec(slot_count, 0ULL);
+        std::vector<uint64_t> one_vec(slot_count, 1ULL);
         seal::Plaintext one_ptxt;
         encoder->encode(one_vec, one_ptxt);
         encryptor->encrypt(one_ptxt, one);
@@ -415,7 +415,7 @@ void Cardio::run_cardio() {
     // !flags[SEX_FIELD] == flags[SEX_FIELD]+1
 
     seal::Ciphertext one;
-    std::vector<uint64_t> one_vec(slot_count, 0ULL);
+    std::vector<uint64_t> one_vec(slot_count, 1ULL);
     seal::Plaintext one_ptxt;
     encoder->encode(one_vec, one_ptxt);
 
