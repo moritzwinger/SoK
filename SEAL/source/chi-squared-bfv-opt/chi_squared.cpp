@@ -73,7 +73,7 @@ ResultCiphertexts ChiSquared::compute_alpha_betas(const seal::Ciphertext &N_0,
     seal::Plaintext four;
     encoder->encode(four_vec, four);
 
-    std::vector<uint64_t> two_vec(slot_count, 4ULL);
+    std::vector<uint64_t> two_vec(slot_count, 2ULL);
     seal::Plaintext two;
     encoder->encode(two_vec, two);
 
