@@ -57,7 +57,7 @@ namespace {
 
 uint64_t ChiSquared::get_decrypted_value(seal::Ciphertext value) {
     seal::Plaintext tmp;
-    std::vector<uint64_t> resultvec(encoder->slot_count(), 0ULL);;
+    std::vector<uint64_t> resultvec(encoder->slot_count(), 0ULL);
     decryptor->decrypt(value, tmp);
     encoder->decode(tmp, resultvec);
     return resultvec[0];

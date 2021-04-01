@@ -26,22 +26,22 @@ class Cardio {
   /// the seal context, i.e. object that holds params/etc
   std::shared_ptr<seal::SEALContext> context;
 
-  // secret key, also used for (more efficient) encryption
-  std::unique_ptr<seal::SecretKey> secretKey;
+  /// secret key, also used for (more efficient) encryption
+  seal::SecretKey secretKey;
 
-  /// public key (ptr because PublicKey() segfaults)
-  std::unique_ptr<seal::PublicKey> publicKey;
+  /// public key
+  seal::PublicKey publicKey;
 
   /// keys required to rotate (ptr because GaloisKeys() segfaults)
   std::unique_ptr<seal::GaloisKeys> galoisKeys;
 
-  /// keys required to relinearize after multiplication (ptr for consistency)
-  std::unique_ptr<seal::RelinKeys> relinKeys;
+  /// keys required to relinearize after multiplication
+  seal::RelinKeys relinKeys;
 
   std::unique_ptr<seal::Encryptor> encryptor;
   std::unique_ptr<seal::Evaluator> evaluator;
   std::unique_ptr<seal::Decryptor> decryptor;
-  std::unique_ptr<seal::IntegerEncoder> encoder;
+  std::unique_ptr<seal::BatchEncoder> encoder;
 
   void pre_computation(std::vector<CiphertextVector> &P,
                        std::vector<CiphertextVector> &G, CiphertextVector &lhs,
