@@ -26,22 +26,22 @@ class Microbenchmark {
   /// the seal context, i.e. object that holds params/etc
   std::shared_ptr<seal::SEALContext> context;
 
-  // secret key, also used for (more efficient) encryption
-  std::unique_ptr<seal::SecretKey> secretKey;
+  /// secret key, also used for (more efficient) encryption
+  seal::SecretKey secretKey;
 
-  /// public key (ptr because PublicKey() segfaults)
-  std::unique_ptr<seal::PublicKey> publicKey;
+  /// public key
+  seal::PublicKey publicKey;
 
-  /// keys required to rotate (ptr because GaloisKeys() segfaults)
-  std::unique_ptr<seal::GaloisKeys> galoisKeys;
+  /// keys required to rotate
+  seal::GaloisKeys galoisKeys;
 
-  /// keys required to relinearize after multiplication (ptr for consistency)
-  std::unique_ptr<seal::RelinKeys> relinKeys;
+  /// keys required to relinearize after multiplication
+  seal::RelinKeys relinKeys;
 
   std::unique_ptr<seal::Encryptor> encryptor;
   std::unique_ptr<seal::Evaluator> evaluator;
   std::unique_ptr<seal::Decryptor> decryptor;
-  std::unique_ptr<seal::IntegerEncoder> intEncoder;
+  //std::unique_ptr<seal::IntegerEncoder> intEncoder;
   std::unique_ptr<seal::BatchEncoder> batchEncoder;
 
   void pre_computation(std::vector<CiphertextVector> &P,
@@ -61,8 +61,7 @@ class Microbenchmark {
 
  public:
   void setup_context_bfv(std::size_t poly_modulus_degree,
-                         std::uint64_t plain_modulus,
-                         bool use_batching);
+                         std::uint64_t plain_modulus);
 
   void run_benchmark();
 

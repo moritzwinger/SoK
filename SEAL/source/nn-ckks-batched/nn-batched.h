@@ -30,16 +30,16 @@ class NNBatched {
   std::shared_ptr<seal::SEALContext> context;
 
   /// secret key, also used for (more efficient) encryption
-  std::unique_ptr<seal::SecretKey> secretKey;
+  seal::SecretKey secretKey;
 
   /// public key (ptr because PublicKey() segfaults)
-  std::unique_ptr<seal::PublicKey> publicKey;
+  seal::PublicKey publicKey;
 
   /// keys required to rotate (ptr because GaloisKeys() segfaults)
-  std::unique_ptr<seal::GaloisKeys> galoisKeys;
+  seal::GaloisKeys galoisKeys;
 
   /// keys required to relinearize after multipliction (ptr for consistency)
-  std::unique_ptr<seal::RelinKeys> relinKeys;
+  seal::RelinKeys relinKeys;
 
   std::unique_ptr<seal::Encryptor> encryptor;
   std::unique_ptr<seal::Evaluator> evaluator;

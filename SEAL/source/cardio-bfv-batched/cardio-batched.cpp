@@ -19,7 +19,7 @@ void CardioBatched::setup_context_bfv(std::size_t poly_modulus_degree) {
 
 #ifdef MANUALPARAMS
     parms.set_coeff_modulus(seal::CoeffModulus::Create(
-        poly_modulus_degree,  {30, 60, 60, 60, 60, 60}));
+            poly_modulus_degree, {30, 60, 60, 60, 60, 60}));
 #endif
 
 #ifdef CINGUPARAM
@@ -63,14 +63,14 @@ void CardioBatched::setup_context_bfv(std::size_t poly_modulus_degree) {
     // relinKeys->save(ofs_rk);
     // ofs_rk.close();
 
-  // Only generate those keys that are actually required/used
-  std::vector<int> steps = {-1, -2, -3, -4, -5, -6, -7, 8, 16, 32, 56, 64, 72};
- // galoisKeys =
-   //   std::make_unique<seal::GaloisKeys>(keyGenerator.galois_keys_local(steps));
+    // Only generate those keys that are actually required/used
+    std::vector<int> steps = {-1, -2, -3, -4, -5, -6, -7, 8, 16, 32, 56, 64, 72};
+    // galoisKeys =
+    //   std::make_unique<seal::GaloisKeys>(keyGenerator.galois_keys_local(steps));
     keyGenerator.create_galois_keys(galoisKeys);
-  // std::ofstream ofs_gk("galois_keys.dat", std::ios::binary);
-  // galoisKeys->save(ofs_gk);
-  // ofs_gk.close();
+    // std::ofstream ofs_gk("galois_keys.dat", std::ios::binary);
+    // galoisKeys->save(ofs_gk);
+    // ofs_gk.close();
 
     // Provide both public and secret key, however, we will use public-key
     // encryption as this is the one used in a typical client-server scenario.

@@ -22,50 +22,50 @@ typedef std::chrono::high_resolution_clock Time;
 typedef std::chrono::milliseconds ms;
 
 class Microbenchmark {
- private:
-  double initial_scale;
+private:
+    double initial_scale;
 
-  /// the seal context, i.e. object that holds params/etc
-  std::shared_ptr<seal::SEALContext> context;
+    /// the seal context, i.e. object that holds params/etc
+    std::shared_ptr<seal::SEALContext> context;
 
-  // secret key, also used for (more efficient) encryption
-  std::unique_ptr<seal::SecretKey> secretKey;
+    /// secret key, also used for (more efficient) encryption
+    seal::SecretKey secretKey;
 
-  /// public key (ptr because PublicKey() segfaults)
-  std::unique_ptr<seal::PublicKey> publicKey;
+    /// public key
+    seal::PublicKey publicKey;
 
-  /// keys required to rotate (ptr because GaloisKeys() segfaults)
-  std::unique_ptr<seal::GaloisKeys> galoisKeys;
+    /// keys required to rotate
+    seal::GaloisKeys galoisKeys;
 
-  /// keys required to relinearize after multiplication (ptr for consistency)
-  std::unique_ptr<seal::RelinKeys> relinKeys;
+    /// keys required to relinearize after multiplication
+    seal::RelinKeys relinKeys;
 
-  std::unique_ptr<seal::Encryptor> encryptor;
-  std::unique_ptr<seal::Evaluator> evaluator;
-  std::unique_ptr<seal::Decryptor> decryptor;
-  std::unique_ptr<seal::CKKSEncoder> encoder;
+    std::unique_ptr<seal::Encryptor> encryptor;
+    std::unique_ptr<seal::Evaluator> evaluator;
+    std::unique_ptr<seal::Decryptor> decryptor;
+    std::unique_ptr<seal::CKKSEncoder> encoder;
 
-  void pre_computation(std::vector<CiphertextVector> &P,
-                       std::vector<CiphertextVector> &G, CiphertextVector &lhs,
-                       CiphertextVector &rhs);
+    void pre_computation(std::vector<CiphertextVector> &P,
+                         std::vector<CiphertextVector> &G, CiphertextVector &lhs,
+                         CiphertextVector &rhs);
 
-  void evaluate_G(std::vector<CiphertextVector> &P,
-                  std::vector<CiphertextVector> &G, int row_idx, int col_idx,
-                  int step);
+    void evaluate_G(std::vector<CiphertextVector> &P,
+                    std::vector<CiphertextVector> &G, int row_idx, int col_idx,
+                    int step);
 
-  void evaluate_P(std::vector<CiphertextVector> &P,
-                  std::vector<CiphertextVector> &G, int row_idx, int col_idx,
-                  int step);
+    void evaluate_P(std::vector<CiphertextVector> &P,
+                    std::vector<CiphertextVector> &G, int row_idx, int col_idx,
+                    int step);
 
-  CiphertextVector post_computation(std::vector<CiphertextVector> &P,
-                                    std::vector<CiphertextVector> &G, int size);
-  
-  seal::Ciphertext encode_and_encrypt(double numbers);
+    CiphertextVector post_computation(std::vector<CiphertextVector> &P,
+                                      std::vector<CiphertextVector> &G, int size);
 
- public:
-  void setup_context_ckks(std::size_t poly_modulus_degree);
+    seal::Ciphertext encode_and_encrypt(double numbers);
 
-  void run_benchmark();
+public:
+    void setup_context_ckks(std::size_t poly_modulus_degree);
 
-  int main(int argc, char *argv[]);
+    void run_benchmark();
+
+    int main(int argc, char *argv[]);
 };
