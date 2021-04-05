@@ -38,7 +38,7 @@ void Microbenchmark::setup_context_bfv(std::size_t poly_modulus_degree,
     batchEncoder = std::make_unique<seal::BatchEncoder>(*context);
     // Only generate those keys that are actually required/used
     std::vector<int> steps = {-4, 4};
-    keyGenerator.create_galois_keys(galoisKeys);
+    keyGenerator.create_galois_keys(steps, galoisKeys);
 }
 
 namespace {

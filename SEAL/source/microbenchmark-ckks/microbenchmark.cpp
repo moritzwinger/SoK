@@ -25,7 +25,7 @@ void Microbenchmark::setup_context_ckks(std::size_t poly_modulus_degree) {
 
     // Only generate those keys that are actually required/used
     std::vector<int> steps = {-4, 4};
-    keyGenerator.create_galois_keys(galoisKeys);
+    keyGenerator.create_galois_keys(steps, galoisKeys);
     // std::ofstream ofs_gk("galois_keys.dat", std::ios::binary);
     // galoisKeys->save(ofs_gk);
     // ofs_gk.close();

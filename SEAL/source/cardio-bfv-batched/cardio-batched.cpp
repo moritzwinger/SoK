@@ -67,7 +67,7 @@ void CardioBatched::setup_context_bfv(std::size_t poly_modulus_degree) {
     std::vector<int> steps = {-1, -2, -3, -4, -5, -6, -7, 8, 16, 32, 56, 64, 72};
     // galoisKeys =
     //   std::make_unique<seal::GaloisKeys>(keyGenerator.galois_keys_local(steps));
-    keyGenerator.create_galois_keys(galoisKeys);
+    keyGenerator.create_galois_keys(steps, galoisKeys);
     // std::ofstream ofs_gk("galois_keys.dat", std::ios::binary);
     // galoisKeys->save(ofs_gk);
     // ofs_gk.close();
