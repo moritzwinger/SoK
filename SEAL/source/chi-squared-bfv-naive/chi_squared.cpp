@@ -156,7 +156,7 @@ void ChiSquared::run_chi_squared() {
 
     // set up the BFV scheme
     auto t0 = Time::now();
-    setup_context_bfv(32768, 4096);
+    setup_context_bfv_opt(32768, 4096);
     auto t1 = Time::now();
     log_time(ss_time, t0, t1, false);
 

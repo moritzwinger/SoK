@@ -478,7 +478,7 @@ void CardioBatched::run_cardio() {
 
     // write ss_time into file
     std::ofstream myfile;
-    auto out_filename = std::getenv("OUTPUT_FILENAME");
+    auto out_filename = std::getenv("OUTPUT_FILENAME"); // fix
     myfile.open(out_filename, std::ios::out | std::ios::app);
     if (myfile.fail()) throw std::ios_base::failure(std::strerror(errno));
     // make sure write fails with exception if something is wrong

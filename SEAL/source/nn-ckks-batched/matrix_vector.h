@@ -1,4 +1,5 @@
 #pragma once
+
 #include <vector>
 
 /// Matrix in row-major order

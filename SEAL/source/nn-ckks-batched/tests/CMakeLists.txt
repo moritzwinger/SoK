@@ -15,7 +15,6 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 
 
-
 ##############################
 # TARGET: testing
 ##############################
@@ -36,10 +35,10 @@ endif ()
 
 target_link_libraries(testing-all PRIVATE gtest nn_ckks_batched_lib SEAL::seal gtest_main)
 
-if(MSVC)
+if (MSVC)
     # Mark gtest as external
     target_compile_options(testing-all PRIVATE /external:I${gtest_SOURCE_DIR}/include)
-endif()
+endif ()
 
 # create ctest targets
 gtest_discover_tests(testing-all TEST_PREFIX gtest:)

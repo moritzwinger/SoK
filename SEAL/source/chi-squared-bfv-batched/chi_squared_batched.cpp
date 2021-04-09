@@ -2,7 +2,7 @@
 
 #include "../common.h"
 
-void ChiSquaredBatched::setup_context_bfv(std::size_t poly_modulus_degree,
+void ChiSquaredBatched::setup_context_bfv_batched(std::size_t poly_modulus_degree,
                                           std::uint64_t plain_modulus) {
     /// Wrapper for parameters
     seal::EncryptionParameters params(seal::scheme_type::bfv);
@@ -111,12 +111,12 @@ seal::Plaintext ChiSquaredBatched::encode_all_slots(int64_t value) {
     return temp;
 }
 
-void ChiSquaredBatched::run_chi_squared() {
+void ChiSquaredBatched::run_chi_squared_batched() {
     std::stringstream ss_time;
 
     // set up the BFV scheme
     auto t0 = Time::now();
-    setup_context_bfv(32768, 4096);
+    setup_context_bfv_batched(32768, 4096);
     auto t1 = Time::now();
     log_time(ss_time, t0, t1, false);
 
@@ -174,6 +174,6 @@ void ChiSquaredBatched::run_chi_squared() {
 
 int main(int argc, char *argv[]) {
     std::cout << "Starting benchmark 'chi-squared-bfv-batched'..." << std::endl;
-    ChiSquaredBatched().run_chi_squared();
+    ChiSquaredBatched().run_chi_squared_batched();
     return 0;
 }

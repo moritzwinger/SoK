@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.9...3.17)
+cmake_minimum_required(VERSION 3.9...3.17)
 
 
 SET(CMAKE_OSX_ARCHITECTURES "arm64" CACHE STRING "Build architectures for Mac OS X" FORCE)
@@ -17,28 +17,28 @@ set_target_properties(microbenchmark-bfv PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(microbenchmark-bfv SEAL::seal)
 
 # Microbenchmark CKKS
-add_executable(microbenchmark-ckks microbenchmark-ckks/microbenchmark.cpp common.h)
+add_executable(microbenchmark-ckks microbenchmark-ckks/microbenchmark_ckks.cpp common.h)
 target_compile_definitions(microbenchmark-ckks PRIVATE SEALPARAMS)
 set_target_properties(microbenchmark-ckks PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(microbenchmark-ckks SEAL::seal)
 
 # Cardio BFV "OPT" with manually selected params
-add_executable(cardio_bfv_manualparams cardio-bfv-opt/cardio.cpp common.h)
-target_compile_definitions(cardio_bfv_manualparams PRIVATE MANUALPARAMS)
-set_target_properties(cardio_bfv_manualparams PROPERTIES LINKER_LANGUAGE CXX)
-target_link_libraries(cardio_bfv_manualparams SEAL::seal)
+add_executable(cardio_bfv_opt_manualparams cardio-bfv-opt/cardio_opt.cpp common.h)
+target_compile_definitions(cardio_bfv_opt_manualparams PRIVATE MANUALPARAMS)
+set_target_properties(cardio_bfv_opt_manualparams PROPERTIES LINKER_LANGUAGE CXX)
+target_link_libraries(cardio_bfv_opt_manualparams SEAL::seal)
 
 # Cardio BFV "OPT" with CinguParam parameters
-add_executable(cardio_bfv_cinguparam cardio-bfv-opt/cardio.cpp common.h)
-target_compile_definitions(cardio_bfv_cinguparam PRIVATE CINGUPARAM)
-set_target_properties(cardio_bfv_cinguparam PROPERTIES LINKER_LANGUAGE CXX)
-target_link_libraries(cardio_bfv_cinguparam SEAL::seal)
+add_executable(cardio_bfv_opt_cinguparam cardio-bfv-opt/cardio_opt.cpp common.h)
+target_compile_definitions(cardio_bfv_opt_cinguparam PRIVATE CINGUPARAM)
+set_target_properties(cardio_bfv_opt_cinguparam PROPERTIES LINKER_LANGUAGE CXX)
+target_link_libraries(cardio_bfv_opt_cinguparam SEAL::seal)
 
 # Cardio BFV "OPT" with moduli selected by SEAL
-add_executable(cardio_bfv_sealparams cardio-bfv-opt/cardio.cpp common.h)
-target_compile_definitions(cardio_bfv_sealparams PRIVATE SEALPARAMS)
-set_target_properties(cardio_bfv_sealparams PROPERTIES LINKER_LANGUAGE CXX)
-target_link_libraries(cardio_bfv_sealparams SEAL::seal)
+add_executable(cardio_bfv_opt_sealparams cardio-bfv-opt/cardio_opt.cpp common.h)
+target_compile_definitions(cardio_bfv_opt_sealparams PRIVATE SEALPARAMS)
+set_target_properties(cardio_bfv_opt_sealparams PROPERTIES LINKER_LANGUAGE CXX)
+target_link_libraries(cardio_bfv_opt_sealparams SEAL::seal)
 
 # Cardio BFV "naive" with same manually selected params as manualparams
 add_executable(cardio_bfv_naive_manualparams cardio-bfv-naive/cardio.cpp common.h)
@@ -79,7 +79,7 @@ target_link_libraries(cardio_bfv_batched_manualparams SEAL::seal)
 
 # Cardio batched CKKS
 add_executable(cardio_ckks_batched cardio-ckks-batched/cardio-batched.cpp common.h)
-set_target_properties(cardio_ckks_batched PROPERTIES LINKER_LANGUAGE CXX) 
+set_target_properties(cardio_ckks_batched PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(cardio_ckks_batched SEAL::seal)
 
 
@@ -102,7 +102,7 @@ target_link_libraries(nn_ckks_batched nn_ckks_batched_lib SEAL::seal)
 # add_subdirectory(nn-ckks-batched/tests)
 
 # Chi Squared BFV OPT (MANUAl PARAMS)
-add_executable(chi_squared_opt chi-squared-bfv-opt/chi_squared.cpp)
+add_executable(chi_squared_opt chi-squared-bfv-opt/chi_squared_opt.cpp)
 target_compile_definitions(chi_squared_opt PRIVATE MANUALPARAMS)
 set_target_properties(chi_squared_opt PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(chi_squared_opt SEAL::seal)
@@ -115,15 +115,15 @@ target_link_libraries(chi_squared_naive SEAL::seal)
 
 # Chi Squared BFV Batched
 add_executable(chi_squared_batched chi-squared-bfv-batched/chi_squared_batched.cpp)
-set_target_properties(chi_squared_batched PROPERTIES LINKER_LANGUAGE CXX) 
+set_target_properties(chi_squared_batched PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(chi_squared_batched SEAL::seal)
 
 #  Kernel BFV
 add_executable(kernel kernel-bfv/kernel.cpp)
-set_target_properties(kernel PROPERTIES LINKER_LANGUAGE CXX) 
+set_target_properties(kernel PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(kernel SEAL::seal)
 
 #  Kernel BFV batched
 add_executable(kernel_batched kernel-bfv-batched/kernel_batched.cpp)
-set_target_properties(kernel_batched PROPERTIES LINKER_LANGUAGE CXX) 
+set_target_properties(kernel_batched PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(kernel_batched SEAL::seal)

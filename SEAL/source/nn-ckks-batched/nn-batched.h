@@ -25,68 +25,69 @@ typedef std::chrono::high_resolution_clock Time;
 typedef std::chrono::milliseconds ms;
 
 class NNBatched {
- private:
-  /// the seal context, i.e. object that holds params/etc
-  std::shared_ptr<seal::SEALContext> context;
+private:
+    /// the seal context, i.e. object that holds params/etc
+    std::shared_ptr<seal::SEALContext> context;
 
-  /// secret key, also used for (more efficient) encryption
-  seal::SecretKey secretKey;
+    /// secret key, also used for (more efficient) encryption
+    seal::SecretKey secretKey;
 
-  /// public key (ptr because PublicKey() segfaults)
-  seal::PublicKey publicKey;
+    /// public key (ptr because PublicKey() segfaults)
+    seal::PublicKey publicKey;
 
-  /// keys required to rotate (ptr because GaloisKeys() segfaults)
-  seal::GaloisKeys galoisKeys;
+    /// keys required to rotate (ptr because GaloisKeys() segfaults)
+    seal::GaloisKeys galoisKeys;
 
-  /// keys required to relinearize after multipliction (ptr for consistency)
-  seal::RelinKeys relinKeys;
+    /// keys required to relinearize after multipliction (ptr for consistency)
+    seal::RelinKeys relinKeys;
 
-  std::unique_ptr<seal::Encryptor> encryptor;
-  std::unique_ptr<seal::Evaluator> evaluator;
-  std::unique_ptr<seal::Decryptor> decryptor;
-  std::unique_ptr<seal::CKKSEncoder> encoder;
+    std::unique_ptr<seal::Encryptor> encryptor;
+    std::unique_ptr<seal::Evaluator> evaluator;
+    std::unique_ptr<seal::Decryptor> decryptor;
+    std::unique_ptr<seal::CKKSEncoder> encoder;
 
-  double initial_scale;
+    double initial_scale;
 
-  void internal_print_info(std::string variable_name, seal::Ciphertext &ctxt);
+    void internal_print_info(std::string variable_name, seal::Ciphertext &ctxt);
 
- public:
-  void setup_context_ckks(std::size_t poly_modulus_degree);
+public:
+    void setup_context_ckks(std::size_t poly_modulus_degree);
 
-  void run_nn();
+    void run_nn();
 
-  seal::Ciphertext encode_and_encrypt(std::vector<double> number);
+    seal::Ciphertext encode_and_encrypt(std::vector<double> number);
 
-  seal::Plaintext encode(std::vector<double> numbers);
+    seal::Plaintext encode(std::vector<double> numbers);
 
-  seal::Plaintext encode(std::vector<double> numbers, seal::parms_id_type parms_id);
+    seal::Plaintext encode(std::vector<double> numbers, seal::parms_id_type parms_id);
 };
 
 class DenseLayer {
- private:
-  std::vector<vec> diags;
-  vec bias_vec;
- public:
-  /// Create random weights and biases for a dense or fully-connected layer
-  /// \param units number of units, i.e. output size
-  /// \param input_size dimension of input
-  /// \throws std::invalid_argument if units != input_size because fast MVP is only defined over square matrices
-  DenseLayer(size_t units, size_t input_size);
+private:
+    std::vector<vec> diags;
+    vec bias_vec;
+public:
+    /// Create random weights and biases for a dense or fully-connected layer
+    /// \param units number of units, i.e. output size
+    /// \param input_size dimension of input
+    /// \throws std::invalid_argument if units != input_size because fast MVP is only defined over square matrices
+    DenseLayer(size_t units, size_t input_size);
 
-  /// Get Weights
-  /// \return The weights matrix of size input_size x units, represented by its diagonals
-  const std::vector<vec> &weights_as_diags();
+    /// Get Weights
+    /// \return The weights matrix of size input_size x units, represented by its diagonals
+    const std::vector<vec> &weights_as_diags();
 
-  /// Get Weights
-  /// \return A bias vector of length units
-  const vec &bias();
+    /// Get Weights
+    /// \return A bias vector of length units
+    const vec &bias();
 
-  /// Get number of units
-  size_t units();
+    /// Get number of units
+    size_t units();
 
-  /// Get size of input
-  size_t input_size();
+    /// Get size of input
+    size_t input_size();
 };
+
 /// Create only the required power-of-two rotations
 /// This can save quite a bit, for example for poly_modulus_degree = 16384
 /// The default galois keys (with zlib compression) are 247 MB large

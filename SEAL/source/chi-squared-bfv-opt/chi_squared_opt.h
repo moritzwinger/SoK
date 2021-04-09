@@ -1,5 +1,5 @@
-#ifndef CHI_SQUARED_BATCHED_H_
-#define CHI_SQUARED_BATCHED_H_
+#ifndef CHI_SQUARED_H_
+#define CHI_SQUARED_H_
 #endif
 
 #include <seal/seal.h>
@@ -30,12 +30,12 @@ public:
             : alpha(alpha), beta_1(beta_1), beta_2(beta_2), beta_3(beta_3) {};
 };
 
-class ChiSquaredBatched {
+class ChiSquared {
 private:
     /// the seal context, i.e. object that holds params/etc
     std::shared_ptr<seal::SEALContext> context;
 
-    // secret key, also used for (more efficient) encryption
+    /// secret key, also used for (more efficient) encryption
     seal::SecretKey secretKey;
 
     /// public key
@@ -52,14 +52,10 @@ private:
     std::unique_ptr<seal::Decryptor> decryptor;
     std::unique_ptr<seal::BatchEncoder> encoder;
 
-    seal::Ciphertext encode_all_slots_and_encrypt(int64_t value);
-
-    seal::Plaintext encode_all_slots(int64_t value);
-
 public:
-    void run_chi_squared_batched();
+    void run_chi_squared_opt();
 
-    void setup_context_bfv_batched(std::size_t poly_modulus_degree,
+    void setup_context_bfv_opt(std::size_t poly_modulus_degree,
                            std::uint64_t plain_modulus);
 
     ResultCiphertexts compute_alpha_betas(const seal::Ciphertext &N_0,
@@ -68,5 +64,5 @@ public:
 
     int main(int argc, char *argv[]);
 
-    int64_t get_first_decrypted_value(seal::Ciphertext value);
+    uint64_t get_decrypted_value(seal::Ciphertext value);
 };

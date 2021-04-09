@@ -38,7 +38,7 @@ void CardioBatched::setup_context_ckks(std::size_t poly_modulus_degree) {
 
     // Only generate those keys that are actually required/used
     std::vector<int> steps = {-1, -2, -3, -4, -5, -6, -7, 8, 16, 32, 56, 64, 72};
-    keyGenerator.create_galois_keys(steps,galoisKeys);
+    keyGenerator.create_galois_keys(steps, galoisKeys);
     // std::ofstream ofs_gk("galois_keys.dat", std::ios::binary);
     // galoisKeys->save(ofs_gk);
     // ofs_gk.close();

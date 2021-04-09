@@ -36,7 +36,7 @@ private:
     /// public key
     seal::PublicKey publicKey;
 
-    /// keys required to rotate (ptr because GaloisKeys() segfaults)
+    /// keys required to rotate
     seal::GaloisKeys galoisKeys;
 
     /// keys required to relinearize after multipliction (ptr for consistency)

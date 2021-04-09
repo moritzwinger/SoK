@@ -1,8 +1,8 @@
-#include "chi_squared.h"
+#include "chi_squared_opt.h"
 
 #include "../common.h"
 
-void ChiSquared::setup_context_bfv(std::size_t poly_modulus_degree,
+void ChiSquared::setup_context_bfv_opt(std::size_t poly_modulus_degree,
                                    std::uint64_t plain_modulus) {
     /// Wrapper for parameters
     seal::EncryptionParameters params(seal::scheme_type::bfv);
@@ -119,12 +119,12 @@ ResultCiphertexts ChiSquared::compute_alpha_betas(const seal::Ciphertext &N_0,
     return ResultCiphertexts(alpha, beta_1, beta_2, beta_3);
 }
 
-void ChiSquared::run_chi_squared() {
+void ChiSquared::run_chi_squared_opt() {
     std::stringstream ss_time;
 
     // set up the BFV scheme
     auto t0 = Time::now();
-    setup_context_bfv(32768, 4096);
+    setup_context_bfv_opt(32768, 4096);
     auto t1 = Time::now();
     log_time(ss_time, t0, t1, false);
 
@@ -194,6 +194,6 @@ void ChiSquared::run_chi_squared() {
 
 int main(int argc, char *argv[]) {
     std::cout << "Starting benchmark 'chi-squared-bfv-opt'..." << std::endl;
-    ChiSquared().run_chi_squared();
+    ChiSquared().run_chi_squared_opt();
     return 0;
 }

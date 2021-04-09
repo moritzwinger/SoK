@@ -1,4 +1,4 @@
-#include "cardio.h"
+#include "cardio_opt.h"
 #include "../common.h"
 
 #define SEX_FIELD 0
@@ -7,7 +7,7 @@
 #define DIABETES_FIELD 3
 #define PRESSURE_FIELD 4
 
-void Cardio::setup_context_bfv(std::size_t poly_modulus_degree,
+void Cardio::setup_context_bfv_opt(std::size_t poly_modulus_degree,
                                std::uint64_t plain_modulus) {
     /// Wrapper for parameters
     seal::EncryptionParameters params(seal::scheme_type::bfv);
@@ -348,12 +348,12 @@ namespace {
     }
 }  // namespace
 
-void Cardio::run_cardio() {
+void Cardio::run_cardio_opt() {
     std::stringstream ss_time;
 
     // set up the BFV schema
     auto t0 = Time::now();
-    setup_context_bfv(16384, 2);
+    setup_context_bfv_opt(16384, 2);
     auto t1 = Time::now();
     log_time(ss_time, t0, t1, false);
 
@@ -523,7 +523,7 @@ void Cardio::run_cardio() {
 
 int main(int argc, char *argv[]) {
     std::cout << "Starting benchmark 'cardio-bfv'..." << std::endl;
-    Cardio().run_cardio();
+    Cardio().run_cardio_opt();
 
     return 0;
 }

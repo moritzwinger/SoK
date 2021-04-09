@@ -65,7 +65,7 @@ private:
 public:
     void setup_context_ckks(std::size_t poly_modulus_degree);
 
-    void run_benchmark();
+    void run_benchmark_ckks();
 
     int main(int argc, char *argv[]);
 };

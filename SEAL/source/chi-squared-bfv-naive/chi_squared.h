@@ -19,50 +19,50 @@ typedef std::chrono::high_resolution_clock Time;
 typedef std::chrono::milliseconds ms;
 
 struct ResultCiphertexts {
- public:
-  seal::Ciphertext alpha;
-  seal::Ciphertext beta_1;
-  seal::Ciphertext beta_2;
-  seal::Ciphertext beta_3;
+public:
+    seal::Ciphertext alpha;
+    seal::Ciphertext beta_1;
+    seal::Ciphertext beta_2;
+    seal::Ciphertext beta_3;
 
-  ResultCiphertexts(seal::Ciphertext alpha, seal::Ciphertext beta_1,
-                    seal::Ciphertext beta_2, seal::Ciphertext beta_3)
-      : alpha(alpha), beta_1(beta_1), beta_2(beta_2), beta_3(beta_3){};
+    ResultCiphertexts(seal::Ciphertext alpha, seal::Ciphertext beta_1,
+                      seal::Ciphertext beta_2, seal::Ciphertext beta_3)
+            : alpha(alpha), beta_1(beta_1), beta_2(beta_2), beta_3(beta_3) {};
 };
 
 class ChiSquared {
- private:
-  /// the seal context, i.e. object that holds params/etc
-  std::shared_ptr<seal::SEALContext> context;
+private:
+    /// the seal context, i.e. object that holds params/etc
+    std::shared_ptr<seal::SEALContext> context;
 
-  /// secret key, also used for (more efficient) encryption
-  seal::SecretKey secretKey;
+    /// secret key, also used for (more efficient) encryption
+    seal::SecretKey secretKey;
 
-  /// public key
-  seal::PublicKey publicKey;
+    /// public key
+    seal::PublicKey publicKey;
 
-  /// keys required to rotate (ptr because GaloisKeys() segfaults)
-  std::unique_ptr<seal::GaloisKeys> galoisKeys;
+    /// keys required to rotate (ptr because GaloisKeys() segfaults)
+    std::unique_ptr<seal::GaloisKeys> galoisKeys;
 
-  /// keys required to relinearize after multipliction
-  seal::RelinKeys relinKeys;
+    /// keys required to relinearize after multipliction
+    seal::RelinKeys relinKeys;
 
-  std::unique_ptr<seal::Encryptor> encryptor;
-  std::unique_ptr<seal::Evaluator> evaluator;
-  std::unique_ptr<seal::Decryptor> decryptor;
-  std::unique_ptr<seal::BatchEncoder> encoder;
+    std::unique_ptr<seal::Encryptor> encryptor;
+    std::unique_ptr<seal::Evaluator> evaluator;
+    std::unique_ptr<seal::Decryptor> decryptor;
+    std::unique_ptr<seal::BatchEncoder> encoder;
 
- public:
-  void run_chi_squared();
+public:
+    void run_chi_squared();
 
-  void setup_context_bfv(std::size_t poly_modulus_degree,
-                         std::uint64_t plain_modulus);
+    void setup_context_bfv(std::size_t poly_modulus_degree,
+                           std::uint64_t plain_modulus);
 
-  ResultCiphertexts compute_alpha_betas(const seal::Ciphertext &N_0,
-                                        const seal::Ciphertext &N_1,
-                                        const seal::Ciphertext &N_2);
+    ResultCiphertexts compute_alpha_betas(const seal::Ciphertext &N_0,
+                                          const seal::Ciphertext &N_1,
+                                          const seal::Ciphertext &N_2);
 
-  int main(int argc, char *argv[]);
+    int main(int argc, char *argv[]);
 
-  uint64_t get_decrypted_value(seal::Ciphertext value);
+    uint64_t get_decrypted_value(seal::Ciphertext value);
 };

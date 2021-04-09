@@ -1,4 +1,4 @@
-#include "microbenchmark.h"
+#include "microbenchmark_ckks.h"
 
 #include "../common.h"
 
@@ -19,6 +19,7 @@ void Microbenchmark::setup_context_ckks(std::size_t poly_modulus_degree) {
 
     // Create keys
     seal::KeyGenerator keyGenerator(*context);
+
     keyGenerator.create_public_key(publicKey);
     secretKey = keyGenerator.secret_key();
     keyGenerator.create_relin_keys(relinKeys);
@@ -58,10 +59,9 @@ seal::Ciphertext Microbenchmark::encode_and_encrypt(double numbers) {
     return encrypted_numbers;
 }
 
-void Microbenchmark::run_benchmark() {
+void Microbenchmark::run_benchmark_ckks() {
     const int NUM_REPETITIONS{100};
     std::stringstream ss_time;
-
     // set up the CKKS scheme
     auto t0 = Time::now();
     setup_context_ckks(65536);
@@ -313,6 +313,6 @@ void Microbenchmark::run_benchmark() {
 
 int main(int argc, char *argv[]) {
     std::cout << "Starting 'microbenchmark-ckks'..." << std::endl;
-    Microbenchmark().run_benchmark();
+    Microbenchmark().run_benchmark_ckks();
     return 0;
 }

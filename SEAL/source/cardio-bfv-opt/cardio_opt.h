@@ -26,7 +26,7 @@ private:
     /// the seal context, i.e. object that holds params/etc
     std::shared_ptr<seal::SEALContext> context;
 
-    /// secret key, also used for (more efficient) encryption
+    // secret key, also used for (more efficient) encryption
     seal::SecretKey secretKey;
 
     /// public key
@@ -35,7 +35,7 @@ private:
     /// keys required to rotate (ptr because GaloisKeys() segfaults)
     std::unique_ptr<seal::GaloisKeys> galoisKeys;
 
-    /// keys required to relinearize after multiplication
+    /// keys required to relinearize after multipliction (ptr for consistency)
     seal::RelinKeys relinKeys;
 
     std::unique_ptr<seal::Encryptor> encryptor;
@@ -67,10 +67,10 @@ private:
     CiphertextVector ctxt_to_ciphertextvector(seal::Ciphertext &ctxt);
 
 public:
-    void setup_context_bfv(std::size_t poly_modulus_degree,
+    void setup_context_bfv_opt(std::size_t poly_modulus_degree,
                            std::uint64_t plain_modulus);
 
-    void run_cardio();
+    void run_cardio_opt();
 
     CiphertextVector encode_and_encrypt(int32_t number);
 
